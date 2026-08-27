@@ -4194,3 +4194,16 @@ html[data-theme="dark"] .settings-select-row small {
   color: var(--muted);
   font-size: 13px;
 }
+.hero-section:has(.hero-video-backdrop) .hero-proof {
+  background: rgba(7, 19, 13, 0.72);
+  border-color: rgba(245, 247, 241, 0.34);
+}
+.hero-section:has(.hero-video-backdrop) .hero-proof p b {
+  color: #ffffff;
+}
+.hero-section:has(.hero-video-backdrop) .hero-proof p span {
+  color: #d9e5dc;
+}
+.hero-section:has(.hero-video-backdrop) .avatar-stack span {
+  border-color: #f5f7f1;
+}
