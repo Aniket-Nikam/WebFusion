@@ -38,6 +38,8 @@ import { usePersistentState } from "./persistence";
 import { useDialogFocus } from "./modal-a11y";
 import {
   AiFinder,
+  AdminPage,
+  CommunityRequestModal,
   CompareTray,
   ExchangesPage,
   FilterDrawer,
@@ -53,9 +55,12 @@ import type {
   Exchange,
   ExchangeStage,
   Resource,
+  CommunityRequest,
+  Dispute,
 } from "./types";
 
-type View = "home" | "explore" | "ai" | "exchanges" | "impact" | "profile";
+type View =
+  "home" | "explore" | "ai" | "exchanges" | "impact" | "profile" | "admin";
 type Filters = {
   available: boolean;
   free: boolean;
@@ -258,6 +263,7 @@ function Header({
     ["ai", "AI Finder"],
     ["exchanges", "My Exchanges"],
     ["impact", "Impact"],
+    ["admin", "Admin"],
   ];
   return (
     <header className="app-header">
@@ -524,6 +530,9 @@ export default function Home() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [listingOpen, setListingOpen] = useState(false);
   const [requestItems, setRequestItems] = useState<Resource[] | null>(null);
+  const [communityRequestPrefill, setCommunityRequestPrefill] = useState<
+    string | null
+  >(null);
   const [favorites, setFavorites] = usePersistentState<string[]>(
     "cc:favorites",
     [],
@@ -542,6 +551,13 @@ export default function Home() {
   );
   const [customResources, setCustomResources] = usePersistentState<Resource[]>(
     "cc:listed-resources",
+    [],
+  );
+  const [communityRequests, setCommunityRequests] = usePersistentState<
+    CommunityRequest[]
+  >("cc:community-requests", []);
+  const [disputes, setDisputes] = usePersistentState<Dispute[]>(
+    "cc:disputes",
     [],
   );
   const inventory = useMemo(
@@ -641,6 +657,35 @@ export default function Home() {
       },
       ...list,
     ]);
+  };
+  const submitDispute = (dispute: Dispute) => {
+    setDisputes((list) => [dispute, ...list]);
+    setNotifications((list) => [
+      {
+        id: `n-${Date.now()}`,
+        title: "Dispute submitted",
+        body: `${dispute.exchangeId} is queued for admin review.`,
+        time: "Just now",
+        read: false,
+        tone: "amber",
+      },
+      ...list,
+    ]);
+  };
+  const submitCommunityRequest = (request: CommunityRequest) => {
+    setCommunityRequests((list) => [request, ...list]);
+    setNotifications((list) => [
+      {
+        id: `n-${Date.now()}`,
+        title: "Community request posted",
+        body: `${request.title} is now visible to verified owners.`,
+        time: "Just now",
+        read: false,
+        tone: "green",
+      },
+      ...list,
+    ]);
+    setCommunityRequestPrefill(null);
   };
   const common = {
     onOpen: setSelected,
@@ -951,13 +996,27 @@ export default function Home() {
       <AiFinder
         initialQuery={query}
         onRequest={(items) => setRequestItems(items)}
+        onCommunityRequest={(prefill) => setCommunityRequestPrefill(prefill)}
       />
     );
   else if (view === "exchanges")
     content = (
-      <ExchangesPage exchanges={exchanges} onAdvance={advanceExchange} />
+      <ExchangesPage
+        exchanges={exchanges}
+        onAdvance={advanceExchange}
+        onSubmitDispute={submitDispute}
+      />
     );
   else if (view === "impact") content = <ImpactPage exchanges={exchanges} />;
+  else if (view === "admin")
+    content = (
+      <AdminPage
+        resources={inventory}
+        exchanges={exchanges}
+        communityRequests={communityRequests}
+        disputes={disputes}
+      />
+    );
   else content = <ProfilePage />;
   return (
     <main>
@@ -1007,6 +1066,13 @@ export default function Home() {
             setView("exchanges");
           }}
           onComplete={completeRequest}
+        />
+      )}
+      {communityRequestPrefill !== null && (
+        <CommunityRequestModal
+          initialNeed={communityRequestPrefill}
+          onClose={() => setCommunityRequestPrefill(null)}
+          onSubmit={submitCommunityRequest}
         />
       )}
       {listingOpen && (

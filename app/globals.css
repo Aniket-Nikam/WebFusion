@@ -3429,3 +3429,198 @@ textarea::placeholder {
     margin-left: 4px;
   }
 }
+/* Feature completion: matching, disputes, admin */
+.matching-alternatives {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 24px;
+  border-radius: 18px;
+}
+.matching-alternatives h3 {
+  margin: 8px 0 16px;
+}
+.alternative-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+.alternative-row span {
+  display: block;
+  color: #b9c4ba;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.alternative-row strong {
+  color: var(--lime);
+  white-space: nowrap;
+  font-size: 13px;
+}
+.community-cta,
+.dispute-open {
+  margin-top: 14px;
+  border: 1px solid currentColor;
+  background: transparent;
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dispute-form {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  display: grid;
+  gap: 12px;
+}
+.dispute-form label,
+.community-form label {
+  display: grid;
+  gap: 7px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+.dispute-form textarea,
+.dispute-form select,
+.community-form input,
+.community-form textarea,
+.community-form select {
+  font: inherit;
+  letter-spacing: normal;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 44px;
+}
+.dispute-form textarea,
+.community-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.dispute-submit {
+  background: var(--lime);
+  border: 0;
+  padding: 11px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.dispute-confirmed {
+  display: block;
+  color: var(--lime);
+  font-size: 13px;
+  margin-top: 12px;
+}
+.admin-page {
+  max-width: 1180px;
+  margin: auto;
+  padding: 40px 5vw 90px;
+}
+.admin-login {
+  max-width: 520px;
+  margin: 7vh auto;
+  padding: 36px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  display: grid;
+  gap: 14px;
+}
+.admin-login h1 {
+  margin: 0;
+}
+.admin-login input {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+}
+.admin-login small,
+.admin-note {
+  color: var(--muted);
+  font-size: 13px;
+}
+.admin-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0 34px;
+}
+.admin-kpis > div {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 18px;
+  border-radius: 14px;
+}
+.admin-kpis span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.admin-kpis b {
+  display: block;
+  font-size: 30px;
+  margin-top: 8px;
+}
+.admin-queues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.admin-queue {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 22px;
+  border-radius: 16px;
+}
+.admin-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.admin-row span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.admin-row strong,
+.admin-badge {
+  color: var(--green);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.admin-badge.amber {
+  color: #a86618;
+}
+.community-modal {
+  max-width: 650px;
+}
+.community-form {
+  padding: 4px 0 20px;
+  display: grid;
+  gap: 16px;
+}
+@media (max-width: 700px) {
+  .admin-kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin-queues {
+    grid-template-columns: 1fr;
+  }
+  .admin-page {
+    padding-top: 24px;
+  }
+  .alternative-row {
+    align-items: flex-start;
+  }
+}

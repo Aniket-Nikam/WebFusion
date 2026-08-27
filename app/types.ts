@@ -74,6 +74,25 @@ export type Exchange = {
   returnCode: string;
   conditionBefore: Record<string, boolean>;
   conditionAfter?: Record<string, boolean>;
+  platformFee?: number;
+};
+export type CommunityRequest = {
+  id: string;
+  title: string;
+  category: Category;
+  details: string;
+  neededBy: string;
+  requesterId: string;
+  status: "Open" | "Matched";
+  createdAt: string;
+};
+export type Dispute = {
+  id: string;
+  exchangeId: string;
+  reason: string;
+  details: string;
+  submittedAt: string;
+  status: "Open" | "Resolved";
 };
 export type AppNotification = {
   id: string;

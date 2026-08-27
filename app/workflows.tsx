@@ -36,6 +36,8 @@ import type {
   Category,
   Exchange,
   ExchangeStage,
+  CommunityRequest,
+  Dispute,
   NeedAnalysis,
   Resource,
 } from "./types";
@@ -70,9 +72,11 @@ function TinyResource({ resource }: { resource: Resource }) {
 
 export function AiFinder({
   onRequest,
+  onCommunityRequest,
   initialQuery = "I need to make a reel for my club event tomorrow.",
 }: {
   onRequest: (items: Resource[]) => void;
+  onCommunityRequest: (prefill: string) => void;
   initialQuery?: string;
 }) {
   const [query, setQuery] = useState(
@@ -126,6 +130,17 @@ export function AiFinder({
   }, [analysis]);
   const total = bundle.reduce((sum, r) => sum + r.charge, 0),
     deposit = bundle.reduce((sum, r) => sum + r.deposit, 0);
+  const alternatives = useMemo(() => {
+    if (!analysis) return [];
+    return resources
+      .filter((r) => !bundle.some((b) => b.id === r.id))
+      .map((r) => ({
+        resource: r,
+        score: getMatchScore(r, ownerFor(r), false),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  }, [analysis, bundle]);
   return (
     <section className="feature-page ai-page">
       <div className="feature-hero">
@@ -283,6 +298,29 @@ export function AiFinder({
                 Request entire bundle <ArrowRight />
               </button>
             </article>
+            <article className="matching-alternatives">
+              <span className="section-label">
+                SMART MATCHING &amp; ALTERNATIVES
+              </span>
+              <h3>Keep a backup plan.</h3>
+              {alternatives.map(({ resource, score }) => (
+                <div className="alternative-row" key={resource.id}>
+                  <div>
+                    <b>{resource.title}</b>
+                    <span>
+                      {resource.location} · ₹{resource.charge}/day
+                    </span>
+                  </div>
+                  <strong>{score}% match</strong>
+                </div>
+              ))}
+              <button
+                className="community-cta"
+                onClick={() => onCommunityRequest(query)}
+              >
+                Post a community request <ArrowRight size={16} />
+              </button>
+            </article>
           </motion.div>
         )}
       </AnimatePresence>
@@ -312,6 +350,7 @@ export function RequestWizard({
   const [success, setSuccess] = useState(false);
   const total = items.reduce((s, r) => s + r.charge, 0),
     deposit = items.reduce((s, r) => s + r.deposit, 0),
+    platformFee = total > 0 ? Math.max(10, Math.round(total * 0.05)) : 0,
     owner = items[0] ? ownerFor(items[0]) : users[0];
   const send = () => {
     const createdAt = new Date().toISOString();
@@ -338,6 +377,7 @@ export function RequestWizard({
         "Accessories included": true,
         "No visible damage": true,
       },
+      platformFee,
     };
     onComplete(exchange);
     setSuccess(true);
@@ -500,6 +540,14 @@ export function RequestWizard({
                       <b>₹{total}/day</b>
                     </div>
                     <div>
+                      <span>Campus Circular platform fee (5%)</span>
+                      <b>₹{platformFee}</b>
+                    </div>
+                    <div className="charge-total">
+                      <span>Total due per day</span>
+                      <b>₹{total + platformFee}/day</b>
+                    </div>
+                    <div>
                       <span>Refundable deposit</span>
                       <b>₹{deposit}</b>
                     </div>
@@ -519,7 +567,8 @@ export function RequestWizard({
                     to {end}
                     <br />
                     {pickup}
-                    <br />₹{total}/day + ₹{deposit} refundable
+                    <br />₹{total + platformFee}/day incl. ₹{platformFee}{" "}
+                    platform fee + ₹{deposit} refundable
                   </p>
                 </div>
               )}
@@ -689,6 +738,7 @@ export function CompareTray({
 export function ExchangesPage({
   exchanges,
   onAdvance,
+  onSubmitDispute,
 }: {
   exchanges: Exchange[];
   onAdvance: (
@@ -696,6 +746,7 @@ export function ExchangesPage({
     next: ExchangeStage,
     after?: Record<string, boolean>,
   ) => void;
+  onSubmitDispute: (dispute: Dispute) => void;
 }) {
   const [tab, setTab] = useState<"Borrowing" | "Lending" | "Completed">(
     "Borrowing",
@@ -748,6 +799,7 @@ export function ExchangesPage({
               key={exchange.id}
               exchange={exchange}
               onAdvance={onAdvance}
+              onSubmitDispute={onSubmitDispute}
             />
           ))}
         </div>
@@ -764,6 +816,7 @@ export function ExchangesPage({
 function ExchangeCard({
   exchange,
   onAdvance,
+  onSubmitDispute,
 }: {
   exchange: Exchange;
   onAdvance: (
@@ -771,11 +824,16 @@ function ExchangeCard({
     n: ExchangeStage,
     a?: Record<string, boolean>,
   ) => void;
+  onSubmitDispute: (dispute: Dispute) => void;
 }) {
   const [idx] = [stages.indexOf(exchange.stage)];
   const item = resources.find((r) => r.id === exchange.resourceIds[0])!;
   const owner = users.find((u) => u.id === exchange.ownerId)!;
   const [showCondition, setShowCondition] = useState(false);
+  const [showDispute, setShowDispute] = useState(false);
+  const [disputeReason, setDisputeReason] = useState("Item condition changed");
+  const [disputeDetails, setDisputeDetails] = useState("");
+  const [disputeSubmitted, setDisputeSubmitted] = useState(false);
   const [checks, setChecks] = useState<Record<string, boolean>>(
     exchange.conditionBefore,
   );
@@ -850,10 +908,65 @@ function ExchangeCard({
             </label>
           ))}
           {Object.values(checks).some((v) => !v) && (
-            <p>
-              <AlertTriangle /> Condition discrepancy detected — a dispute can
-              be opened before settlement.
-            </p>
+            <>
+              <p>
+                <AlertTriangle /> Condition discrepancy detected — submit
+                evidence before settlement.
+              </p>
+              {!disputeSubmitted && (
+                <button
+                  className="dispute-open"
+                  onClick={() => setShowDispute((value) => !value)}
+                >
+                  Open dispute form
+                </button>
+              )}
+              {showDispute && !disputeSubmitted && (
+                <div className="dispute-form">
+                  <label>
+                    REASON
+                    <select
+                      value={disputeReason}
+                      onChange={(e) => setDisputeReason(e.target.value)}
+                    >
+                      <option>Item condition changed</option>
+                      <option>Accessory missing</option>
+                      <option>Return timing disagreement</option>
+                    </select>
+                  </label>
+                  <label>
+                    EVIDENCE / DETAILS
+                    <textarea
+                      value={disputeDetails}
+                      onChange={(e) => setDisputeDetails(e.target.value)}
+                      placeholder="Describe what changed and what evidence you have…"
+                    />
+                  </label>
+                  <button
+                    className="dispute-submit"
+                    onClick={() => {
+                      onSubmitDispute({
+                        id: `DSP-${Date.now()}`,
+                        exchangeId: exchange.id,
+                        reason: disputeReason,
+                        details: disputeDetails,
+                        submittedAt: new Date().toISOString(),
+                        status: "Open",
+                      });
+                      setDisputeSubmitted(true);
+                      setShowDispute(false);
+                    }}
+                  >
+                    Submit evidence &amp; open dispute
+                  </button>
+                </div>
+              )}
+              {disputeSubmitted && (
+                <span className="dispute-confirmed">
+                  Dispute submitted · evidence queued for admin review.
+                </span>
+              )}
+            </>
           )}
           <button onClick={() => onAdvance(exchange, "Returned", checks)}>
             Confirm return condition
@@ -1494,5 +1607,247 @@ export function ListResourceModal({
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export function CommunityRequestModal({
+  initialNeed,
+  onClose,
+  onSubmit,
+}: {
+  initialNeed: string;
+  onClose: () => void;
+  onSubmit: (request: CommunityRequest) => void;
+}) {
+  const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
+  const [title, setTitle] = useState(initialNeed);
+  const [category, setCategory] = useState<Category>("Electronics");
+  const [neededBy, setNeededBy] = useState("2026-08-30");
+  const [details, setDetails] = useState("");
+  return (
+    <div className="modal-backdrop">
+      <motion.div
+        ref={dialogRef}
+        className="wizard community-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="community-request-title"
+        tabIndex={-1}
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
+        <button
+          className="modal-close"
+          onClick={onClose}
+          aria-label="Close community request"
+        >
+          <X />
+        </button>
+        <div className="wizard-head">
+          <span>COMMUNITY REQUEST</span>
+          <h2 id="community-request-title">Ask campus to help.</h2>
+          <p>Post a need and let verified owners respond with alternatives.</p>
+        </div>
+        <div className="community-form">
+          <label>
+            WHAT DO YOU NEED?
+            <input
+              data-autofocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. A projector for our club showcase"
+            />
+          </label>
+          <div className="date-grid">
+            <label>
+              CATEGORY
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as Category)}
+              >
+                {[
+                  "Cameras",
+                  "Computing",
+                  "Books",
+                  "Electronics",
+                  "Audio",
+                  "Tools",
+                  "Instruments",
+                  "Study",
+                ].map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              NEEDED BY
+              <input
+                type="date"
+                value={neededBy}
+                onChange={(e) => setNeededBy(e.target.value)}
+              />
+            </label>
+          </div>
+          <label>
+            CONTEXT / DETAILS
+            <textarea
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              placeholder="Add timing, preferred specs, or pickup constraints…"
+            />
+          </label>
+        </div>
+        <div className="wizard-footer">
+          <button onClick={onClose}>Cancel</button>
+          <button
+            className="primary"
+            disabled={!title.trim()}
+            onClick={() =>
+              onSubmit({
+                id: `REQ-${Date.now()}`,
+                title,
+                category,
+                details,
+                neededBy,
+                requesterId: currentUser.id,
+                status: "Open",
+                createdAt: new Date().toISOString(),
+              })
+            }
+          >
+            Post request <ArrowRight />
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+export function AdminPage({
+  resources: inventory,
+  exchanges,
+  communityRequests,
+  disputes,
+}: {
+  resources: Resource[];
+  exchanges: Exchange[];
+  communityRequests: CommunityRequest[];
+  disputes: Dispute[];
+}) {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [email, setEmail] = useState("admin@campus.circular");
+  if (!authenticated)
+    return (
+      <section className="feature-page admin-page">
+        <div className="admin-login">
+          <span className="section-label">ADMIN ACCESS</span>
+          <h1>Campus operations.</h1>
+          <p>
+            Review community requests, disputes, and exchange health from one
+            calm control room.
+          </p>
+          <input
+            aria-label="Admin email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            aria-label="Admin password"
+            type="password"
+            placeholder="Demo password"
+          />
+          <button
+            className="primary-wide"
+            onClick={() => setAuthenticated(true)}
+          >
+            Enter admin console <ArrowRight />
+          </button>
+          <small>Frontend demo access · no real credentials are stored.</small>
+        </div>
+      </section>
+    );
+  const openRequests = communityRequests.filter((r) => r.status === "Open");
+  const openDisputes = disputes.filter((d) => d.status === "Open");
+  const fees = exchanges.reduce((sum, e) => sum + (e.platformFee || 0), 0);
+  return (
+    <section className="feature-page admin-page">
+      <div className="feature-hero split">
+        <div>
+          <span className="section-label">ADMIN CONSOLE</span>
+          <h1>Campus operations.</h1>
+        </div>
+        <p>One view for trust, inventory, requests, and settlements.</p>
+      </div>
+      <div className="admin-kpis">
+        <div>
+          <span>ACTIVE RESOURCES</span>
+          <b>{inventory.length}</b>
+        </div>
+        <div>
+          <span>OPEN EXCHANGES</span>
+          <b>{exchanges.filter((e) => e.stage !== "Deposit settled").length}</b>
+        </div>
+        <div>
+          <span>COMMUNITY REQUESTS</span>
+          <b>{openRequests.length}</b>
+        </div>
+        <div>
+          <span>FEES TRACKED</span>
+          <b>₹{fees}</b>
+        </div>
+      </div>
+      <div className="admin-queues">
+        <div className="admin-queue">
+          <div className="section-heading">
+            <div>
+              <span className="section-label">INBOX</span>
+              <h2>Community requests</h2>
+            </div>
+            <span className="admin-badge">{openRequests.length} open</span>
+          </div>
+          {openRequests.length ? (
+            openRequests.map((r) => (
+              <div className="admin-row" key={r.id}>
+                <div>
+                  <b>{r.title}</b>
+                  <span>
+                    {r.category} · needed by {r.neededBy}
+                  </span>
+                </div>
+                <strong>Open</strong>
+              </div>
+            ))
+          ) : (
+            <p className="admin-note">No requests waiting for a match.</p>
+          )}
+        </div>
+        <div className="admin-queue">
+          <div className="section-heading">
+            <div>
+              <span className="section-label">TRUST &amp; SAFETY</span>
+              <h2>Dispute queue</h2>
+            </div>
+            <span className="admin-badge amber">
+              {openDisputes.length} open
+            </span>
+          </div>
+          {openDisputes.length ? (
+            openDisputes.map((d) => (
+              <div className="admin-row" key={d.id}>
+                <div>
+                  <b>
+                    {d.exchangeId} · {d.reason}
+                  </b>
+                  <span>{d.details || "No additional details"}</span>
+                </div>
+                <strong>Review</strong>
+              </div>
+            ))
+          ) : (
+            <p className="admin-note">No disputes require review.</p>
+          )}
+        </div>
+      </div>
+    </section>
   );
 }
