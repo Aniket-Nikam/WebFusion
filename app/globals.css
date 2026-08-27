@@ -4298,6 +4298,135 @@ html[data-theme="dark"] .settings-select-row small {
   color: var(--green);
   font-weight: 700;
 }
+.payment-detail {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 15px;
+  margin: 12px 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+.payment-detail label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.payment-detail input {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  color: var(--ink);
+  letter-spacing: normal;
+}
+.demo-qr {
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 3px;
+  border: 1px dashed var(--green);
+  border-radius: 10px;
+  color: var(--green);
+  background: #eff5ee;
+}
+.demo-qr svg {
+  width: 50px;
+  height: 50px;
+}
+.demo-qr span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.card-fields {
+  grid-template-columns: 1fr;
+}
+.card-fields > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.card-fields > small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.cash-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin: 12px 0;
+  background: #f0f3ed;
+  border-radius: 12px;
+  color: var(--green);
+}
+.cash-detail div {
+  display: grid;
+  gap: 4px;
+  color: var(--ink);
+}
+.cash-detail span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.wizard-steps {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  align-items: center;
+  padding-inline: 30px;
+}
+.wizard-steps div {
+  min-width: 0;
+  gap: 7px;
+}
+.wizard-steps b {
+  font: 600 13px/1.2 var(--font-body);
+  color: var(--ink);
+}
+.wizard-steps div:not(.active) b {
+  color: var(--muted);
+}
+.accept-row {
+  min-height: 48px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.accept-row input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  accent-color: var(--green);
+}
+@media (max-width: 700px) {
+  .wizard-steps {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 14px;
+    padding-inline: 18px;
+  }
+  .wizard-steps b {
+    font-size: 12px;
+  }
+  .payment-detail {
+    grid-template-columns: 1fr;
+  }
+  .demo-qr {
+    width: 96px;
+    height: 96px;
+  }
+}
 .availability-calendar button.selected {
   border-color: var(--green);
   background: #dcebdd;

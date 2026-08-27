@@ -362,6 +362,10 @@ export function RequestWizard({
   const [paymentStatus, setPaymentStatus] = useState<
     "idle" | "processing" | "success"
   >("idle");
+  const [upiId, setUpiId] = useState("ananya@campus");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
   const total = items.reduce((s, r) => s + r.charge, 0),
     deposit = items.reduce((s, r) => s + r.deposit, 0),
     platformFee =
@@ -629,6 +633,69 @@ export function RequestWizard({
                       </button>
                     ))}
                   </div>
+                  {paymentMethod === "UPI / QR" && (
+                    <div className="payment-detail">
+                      <div className="demo-qr">
+                        <QrCode />
+                        <span>DEMO QR</span>
+                      </div>
+                      <label>
+                        UPI ID
+                        <input
+                          value={upiId}
+                          onChange={(e) => setUpiId(e.target.value)}
+                          placeholder="name@upi"
+                        />
+                      </label>
+                    </div>
+                  )}
+                  {paymentMethod === "Credit card" && (
+                    <div className="payment-detail card-fields">
+                      <label>
+                        CARD NUMBER
+                        <input
+                          inputMode="numeric"
+                          value={cardNumber}
+                          onChange={(e) => setCardNumber(e.target.value)}
+                          placeholder="4242 4242 4242 4242"
+                        />
+                      </label>
+                      <div>
+                        <label>
+                          EXPIRY
+                          <input
+                            value={cardExpiry}
+                            onChange={(e) => setCardExpiry(e.target.value)}
+                            placeholder="MM / YY"
+                          />
+                        </label>
+                        <label>
+                          CVV
+                          <input
+                            inputMode="numeric"
+                            value={cardCvv}
+                            onChange={(e) => setCardCvv(e.target.value)}
+                            placeholder="123"
+                          />
+                        </label>
+                      </div>
+                      <small>
+                        Use any test values — this is a local simulation.
+                      </small>
+                    </div>
+                  )}
+                  {paymentMethod === "Cash at pickup" && (
+                    <div className="cash-detail">
+                      <PackageCheck />
+                      <div>
+                        <b>Pay at verified handoff</b>
+                        <span>
+                          We’ll mark the simulated payment as pending until
+                          pickup is confirmed.
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   <div className="payment-summary">
                     <span>Borrowing + service fee</span>
                     <b>₹{total + platformFee}</b>
