@@ -104,6 +104,19 @@ export type PlatformFeeConfig = {
   minFee: number;
   enabled: boolean;
 };
+export type UserPreferences = {
+  theme: "light" | "dark" | "system";
+  reducedMotion: boolean;
+  compactMode: boolean;
+  notifications: boolean;
+  notifyExchanges: boolean;
+  notifyReturns: boolean;
+  notifyCommunity: boolean;
+  notifyPayments: boolean;
+  notifyDeposits: boolean;
+  showProfile: boolean;
+  pickupPreference: string;
+};
 export type AppNotification = {
   id: string;
   title: string;
@@ -121,4 +134,3 @@ export type NeedAnalysis = {
   keywords: string[];
   explanation: string;
 };
-

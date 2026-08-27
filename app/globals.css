@@ -3933,6 +3933,171 @@ textarea::placeholder {
   height: 22px;
   stroke-width: 1.8;
 }
+
+/* Settings keeps the same warm editorial language as the main product. */
+.settings-drawer {
+  width: min(680px, 94vw);
+  max-width: none;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 30px;
+}
+.settings-drawer > header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 20px;
+}
+.settings-drawer > header > div > span,
+.settings-drawer .field-group-label {
+  color: var(--green);
+  font: 700 12px/1.2 var(--font-geist-sans);
+  letter-spacing: 0.08em;
+}
+.settings-body {
+  gap: 20px;
+  padding: 22px 0;
+}
+.settings-section {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.34);
+}
+.role-switch-grid {
+  gap: 12px;
+}
+.role-card {
+  min-height: 130px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  padding: 16px;
+}
+.role-card:hover {
+  border-color: var(--green);
+  background: #f4f7f1;
+}
+.role-card.active {
+  border-color: var(--green);
+  background: #e6efe5;
+  color: var(--ink);
+  box-shadow: 0 0 0 2px rgba(31, 90, 67, 0.08);
+}
+.role-icon,
+.role-icon.admin {
+  background: #e4f0e5;
+  color: var(--green);
+}
+.role-icon.admin {
+  background: #edf0e8;
+}
+.role-card small,
+.settings-drawer .switch-row small,
+.settings-select-row small {
+  color: #53635a;
+  font-size: 14px;
+}
+.role-check {
+  color: var(--green);
+}
+.admin-launch-box {
+  background: #edf3e9;
+  border: 1px solid #c6d9c8;
+  color: var(--ink);
+}
+.admin-launch-box > div {
+  color: var(--green);
+}
+.admin-launch-box span {
+  color: #53635a;
+}
+.settings-drawer .slider-label {
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+.settings-drawer .slider-label b {
+  color: var(--green);
+  font-size: 16px;
+}
+.settings-drawer input[type="range"] {
+  accent-color: var(--green);
+  width: 100%;
+}
+.settings-drawer .switch-row {
+  min-height: 56px;
+  color: var(--ink);
+}
+.settings-drawer .switch-row b {
+  font-size: 16px;
+}
+.settings-drawer .switch-row input[type="checkbox"] {
+  accent-color: var(--green);
+  width: 20px;
+  height: 20px;
+}
+.settings-select-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  color: var(--ink);
+}
+.settings-select-row span {
+  display: grid;
+  gap: 4px;
+}
+.settings-select-row select {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+@media (max-width: 650px) {
+  .settings-drawer {
+    padding: 20px 16px;
+  }
+  .role-switch-grid {
+    grid-template-columns: 1fr;
+  }
+  .settings-select-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .settings-select-row select {
+    width: 100%;
+  }
+}
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+  transition-duration: 0.001ms !important;
+}
+html[data-theme="dark"] body {
+  background: #15221c;
+  color: #f2f4ee;
+}
+html[data-theme="dark"] .settings-drawer {
+  background: #1b2a22;
+  color: #f2f4ee;
+}
+html[data-theme="dark"] .settings-section,
+html[data-theme="dark"] .role-card,
+html[data-theme="dark"] .settings-select-row select {
+  background: #24352b;
+  color: #f2f4ee;
+  border-color: #466052;
+}
+html[data-theme="dark"] .role-card small,
+html[data-theme="dark"] .settings-drawer .switch-row small,
+html[data-theme="dark"] .settings-select-row small {
+  color: #c1d0c5;
+}
 .ai-input {
   gap: 14px;
 }
@@ -3988,4 +4153,9 @@ textarea::placeholder {
     height: 40px;
     flex-basis: 40px;
   }
+}
+.payment-demo-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
 }

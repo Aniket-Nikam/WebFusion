@@ -43,6 +43,7 @@ import type {
   Dispute,
   NeedAnalysis,
   PlatformFeeConfig,
+  UserPreferences,
   Resource,
 } from "./types";
 
@@ -246,7 +247,7 @@ export function AiFinder({
                   </>
                 ) : (
                   <>
-                    <Sparkles /> Structured with Groq and validated before use.
+                    <Sparkles /> A clear setup built around your need.
                   </>
                 )}
               </footer>
@@ -337,11 +338,13 @@ export function RequestWizard({
   onClose,
   onComplete,
   onViewExchanges,
+  feeConfig,
 }: {
   items: Resource[];
   onClose: () => void;
   onComplete: (exchange: Exchange) => void;
   onViewExchanges?: () => void;
+  feeConfig: PlatformFeeConfig;
 }) {
   const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
   const [step, setStep] = useState(0);
@@ -354,7 +357,13 @@ export function RequestWizard({
   const [success, setSuccess] = useState(false);
   const total = items.reduce((s, r) => s + r.charge, 0),
     deposit = items.reduce((s, r) => s + r.deposit, 0),
-    platformFee = total > 0 ? Math.max(10, Math.round(total * 0.05)) : 0,
+    platformFee =
+      feeConfig.enabled && total > 0
+        ? Math.max(
+            feeConfig.minFee,
+            Math.round((total * feeConfig.percentRate) / 100),
+          )
+        : 0,
     owner = items[0] ? ownerFor(items[0]) : users[0];
   const send = () => {
     const createdAt = new Date().toISOString();
@@ -559,6 +568,9 @@ export function RequestWizard({
                   <p className="deposit-note">
                     <CircleDollarSign /> The deposit is simulated and released
                     after condition-confirmed return.
+                  </p>
+                  <p className="payment-demo-note">
+                    Demo checkout · no real payment gateway is connected.
                   </p>
                 </div>
               )}
@@ -1244,6 +1256,8 @@ export function SettingsModal({
   onOpenAdmin,
   feeConfig,
   onUpdateFeeConfig,
+  preferences,
+  onUpdatePreferences,
 }: {
   onClose: () => void;
   activeRole: "student" | "admin";
@@ -1251,11 +1265,10 @@ export function SettingsModal({
   onOpenAdmin: () => void;
   feeConfig: PlatformFeeConfig;
   onUpdateFeeConfig: (config: PlatformFeeConfig) => void;
+  preferences: UserPreferences;
+  onUpdatePreferences: (preferences: UserPreferences) => void;
 }) {
   const dialogRef = useDialogFocus<HTMLElement>(onClose);
-  const [notifyExchanges, setNotifyExchanges] = useState(true);
-  const [notifyReturns, setNotifyReturns] = useState(true);
-  const [notifyCommunity, setNotifyCommunity] = useState(true);
 
   return (
     <div className="notification-backdrop" onClick={onClose}>
@@ -1283,7 +1296,7 @@ export function SettingsModal({
 
         <div className="settings-body">
           <section className="settings-section">
-            <span className="field-group-label">ACTIVE PERSONA &amp; ROLE</span>
+            <span className="field-group-label">CURRENT ROLE</span>
             <div className="role-switch-grid">
               <button
                 className={`role-card ${activeRole === "student" ? "active" : ""}`}
@@ -1293,8 +1306,8 @@ export function SettingsModal({
                   <UserCheck size={20} />
                 </div>
                 <div>
-                  <b>Student Mode</b>
-                  <small>Ananya Rao · Verified Member</small>
+                  <b>Student</b>
+                  <small>Standard campus account</small>
                 </div>
                 {activeRole === "student" && (
                   <CheckCircle2 className="role-check" size={18} />
@@ -1309,8 +1322,8 @@ export function SettingsModal({
                   <Shield size={20} />
                 </div>
                 <div>
-                  <b>Admin Mode</b>
-                  <small>Campus Operations &amp; Oversight</small>
+                  <b>Admin</b>
+                  <small>Campus operations access</small>
                 </div>
                 {activeRole === "admin" && (
                   <CheckCircle2 className="role-check" size={18} />
@@ -1323,7 +1336,7 @@ export function SettingsModal({
                 <div>
                   <ShieldCheck size={20} />
                   <div>
-                    <b>Admin Console Unlocked</b>
+                    <b>Admin Console</b>
                     <span>
                       Manage stats, approvals, disputes &amp; platform fees
                     </span>
@@ -1344,12 +1357,10 @@ export function SettingsModal({
 
           {activeRole === "admin" && (
             <section className="settings-section">
-              <span className="field-group-label">
-                PLATFORM FEE CONFIGURATION
-              </span>
+              <span className="field-group-label">PLATFORM SERVICE FEE</span>
               <label className="switch-row">
                 <span>
-                  <b>Enable Platform Service Fee</b>
+                  <b>Enable service fee</b>
                   <small>
                     Apply percentage service fee to borrowing exchanges
                   </small>
@@ -1369,7 +1380,7 @@ export function SettingsModal({
               {feeConfig.enabled && (
                 <>
                   <label className="slider-label">
-                    PLATFORM FEE RATE <b>{feeConfig.percentRate}%</b>
+                    Service fee <b>{feeConfig.percentRate}%</b>
                     <input
                       type="range"
                       min="1"
@@ -1385,7 +1396,7 @@ export function SettingsModal({
                     />
                   </label>
                   <label className="slider-label">
-                    MINIMUM FEE PER EXCHANGE <b>₹{feeConfig.minFee}</b>
+                    Minimum fee <b>₹{feeConfig.minFee}</b>
                     <input
                       type="range"
                       min="5"
@@ -1406,7 +1417,55 @@ export function SettingsModal({
           )}
 
           <section className="settings-section">
-            <span className="field-group-label">NOTIFICATION PREFERENCES</span>
+            <span className="field-group-label">NOTIFICATIONS</span>
+            <label className="switch-row">
+              <span>
+                <b>All notifications</b>
+                <small>Keep important activity visible</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={preferences.notifications}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    notifications: e.target.checked,
+                  })
+                }
+              />
+            </label>
+            <label className="switch-row">
+              <span>
+                <b>Payment updates</b>
+                <small>Alert when a simulated checkout succeeds or fails</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={preferences.notifyPayments}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    notifyPayments: e.target.checked,
+                  })
+                }
+              />
+            </label>
+            <label className="switch-row">
+              <span>
+                <b>Deposit and refund updates</b>
+                <small>Alert when a held deposit is released</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={preferences.notifyDeposits}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    notifyDeposits: e.target.checked,
+                  })
+                }
+              />
+            </label>
             <label className="switch-row">
               <span>
                 <b>Exchange Status Updates</b>
@@ -1414,8 +1473,13 @@ export function SettingsModal({
               </span>
               <input
                 type="checkbox"
-                checked={notifyExchanges}
-                onChange={(e) => setNotifyExchanges(e.target.checked)}
+                checked={preferences.notifyExchanges}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    notifyExchanges: e.target.checked,
+                  })
+                }
               />
             </label>
             <label className="switch-row">
@@ -1425,8 +1489,13 @@ export function SettingsModal({
               </span>
               <input
                 type="checkbox"
-                checked={notifyReturns}
-                onChange={(e) => setNotifyReturns(e.target.checked)}
+                checked={preferences.notifyReturns}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    notifyReturns: e.target.checked,
+                  })
+                }
               />
             </label>
             <label className="switch-row">
@@ -1438,8 +1507,69 @@ export function SettingsModal({
               </span>
               <input
                 type="checkbox"
-                checked={notifyCommunity}
-                onChange={(e) => setNotifyCommunity(e.target.checked)}
+                checked={preferences.notifyCommunity}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    notifyCommunity: e.target.checked,
+                  })
+                }
+              />
+            </label>
+          </section>
+          <section className="settings-section">
+            <span className="field-group-label">
+              APPEARANCE &amp; ACCESSIBILITY
+            </span>
+            <label className="settings-select-row">
+              <span>
+                <b>Theme</b>
+                <small>Choose how Campus Circular looks</small>
+              </span>
+              <select
+                value={preferences.theme}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    theme: e.target.value as UserPreferences["theme"],
+                  })
+                }
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="system">System</option>
+              </select>
+            </label>
+            <label className="switch-row">
+              <span>
+                <b>Reduced motion</b>
+                <small>Use calmer transitions throughout the app</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={preferences.reducedMotion}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    reducedMotion: e.target.checked,
+                  })
+                }
+              />
+            </label>
+            <label className="switch-row">
+              <span>
+                <b>Show profile information</b>
+                <small>Let borrowers and lenders see your campus profile</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={preferences.showProfile}
+                onChange={(e) =>
+                  onUpdatePreferences({
+                    ...preferences,
+                    showProfile: e.target.checked,
+                  })
+                }
               />
             </label>
           </section>

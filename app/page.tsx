@@ -27,7 +27,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   currentUser,
   initialFeeConfig,
@@ -66,6 +66,7 @@ import type {
   CommunityRequest,
   Dispute,
   PlatformFeeConfig,
+  UserPreferences,
 } from "./types";
 
 type View =
@@ -307,6 +308,7 @@ function Header({
     ["ai", "AI Finder"],
     ["exchanges", "My Exchanges"],
     ["impact", "Impact"],
+    ...(activeRole === "admin" ? [["admin", "Admin"] as [View, string]] : []),
   ];
   return (
     <header className="app-header">
@@ -598,6 +600,22 @@ export default function Home() {
     "cc:fee-config",
     initialFeeConfig,
   );
+  const [preferences, setPreferences] = usePersistentState<UserPreferences>(
+    "cc:user-preferences",
+    {
+      theme: "light",
+      reducedMotion: false,
+      compactMode: false,
+      notifications: true,
+      notifyExchanges: true,
+      notifyReturns: true,
+      notifyCommunity: true,
+      notifyPayments: true,
+      notifyDeposits: true,
+      showProfile: true,
+      pickupPreference: "Main Building meetup",
+    },
+  );
   const [favorites, setFavorites] = usePersistentState<string[]>(
     "cc:favorites",
     [],
@@ -629,6 +647,13 @@ export default function Home() {
     () => [...customResources, ...resources],
     [customResources],
   );
+  useEffect(() => {
+    document.documentElement.dataset.theme = preferences.theme;
+    document.documentElement.classList.toggle(
+      "reduce-motion",
+      preferences.reducedMotion,
+    );
+  }, [preferences.theme, preferences.reducedMotion]);
   const setView = (next: View) => {
     setViewState(next);
     window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
@@ -683,6 +708,7 @@ export default function Home() {
   }, [query, category, sort, urgent, filters, inventory]);
   const completeRequest = (exchange: Exchange) => {
     setExchanges((list) => [exchange, ...list]);
+    if (!preferences.notifications || !preferences.notifyExchanges) return;
     setNotifications((list) => [
       {
         id: `n-${Date.now()}`,
@@ -711,6 +737,13 @@ export default function Home() {
           : item,
       ),
     );
+    if (
+      !preferences.notifications ||
+      (next === "Deposit settled"
+        ? !preferences.notifyDeposits
+        : !preferences.notifyExchanges)
+    )
+      return;
     setNotifications((list) => [
       {
         id: `n-${Date.now()}`,
@@ -725,6 +758,7 @@ export default function Home() {
   };
   const submitDispute = (dispute: Dispute) => {
     setDisputes((list) => [dispute, ...list]);
+    if (!preferences.notifications) return;
     setNotifications((list) => [
       {
         id: `n-${Date.now()}`,
@@ -739,6 +773,10 @@ export default function Home() {
   };
   const submitCommunityRequest = (request: CommunityRequest) => {
     setCommunityRequests((list) => [request, ...list]);
+    if (!preferences.notifications || !preferences.notifyCommunity) {
+      setCommunityRequestPrefill(null);
+      return;
+    }
     setNotifications((list) => [
       {
         id: `n-${Date.now()}`,
@@ -787,7 +825,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
             >
               <Sparkles size={14} />
-              <span>Now with GPT-5 &amp; Groq AI support ✨</span>
+              <span>Campus Assistant · built for student life</span>
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
@@ -848,7 +886,7 @@ export default function Home() {
               <span>
                 <Sparkles /> CAMPUS NEED ASSISTANT
               </span>
-              <small>Groq-ready · offline safe</small>
+              <small>Smart setup · available on campus</small>
             </div>
             <h2>
               Tell us what you need,
@@ -1187,6 +1225,7 @@ export default function Home() {
             setView("exchanges");
           }}
           onComplete={completeRequest}
+          feeConfig={feeConfig}
         />
       )}
       {communityRequestPrefill !== null && (
@@ -1236,6 +1275,8 @@ export default function Home() {
           onOpenAdmin={() => setView("admin")}
           feeConfig={feeConfig}
           onUpdateFeeConfig={setFeeConfig}
+          preferences={preferences}
+          onUpdatePreferences={setPreferences}
         />
       )}
     </main>
