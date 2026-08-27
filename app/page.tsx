@@ -120,7 +120,6 @@ function CategoryCard({
         <b>{name}</b>
         <div>
           <small>{count} nearby</small>
-          <ArrowRight aria-hidden="true" />
         </div>
       </div>
     </button>
@@ -775,6 +774,7 @@ export default function Home() {
             muted
             loop
             playsInline
+            aria-hidden="true"
             src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4"
             className="hero-video-backdrop"
           />
