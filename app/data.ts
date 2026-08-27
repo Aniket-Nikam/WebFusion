@@ -1,4 +1,11 @@
-import type { AppNotification, CommunityRequest, Dispute, PlatformFeeConfig, Resource, User } from "./types";
+import type {
+  AppNotification,
+  CommunityRequest,
+  Dispute,
+  PlatformFeeConfig,
+  Resource,
+  User,
+} from "./types";
 
 export const users: User[] = [
   {
@@ -110,9 +117,15 @@ export const users: User[] = [
   },
 ];
 
-const img = {
+export const img = {
   camera:
     "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=82",
+  cameraCanon:
+    "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=1200&q=82",
+  cameraSony:
+    "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=1200&q=82",
+  cameraTripod:
+    "https://images.unsplash.com/photo-1606986628253-7c7f3f6f0e52?auto=format&fit=crop&w=1200&q=82",
   laptop:
     "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=82",
   audio:
@@ -179,7 +192,7 @@ export const resources: Resource[] = [
     true,
     180,
     1500,
-    img.camera,
+    img.cameraSony,
     "A sharp lightweight 4K camera ideal for club reels, interviews and event coverage.",
     ["16–50mm lens", "2 batteries", "64GB SD card", "Shoulder bag"],
     ["4K", "reels", "events"],
@@ -196,7 +209,7 @@ export const resources: Resource[] = [
     true,
     120,
     1200,
-    img.camera,
+    img.cameraCanon,
     "Beginner-friendly DSLR with reliable autofocus and excellent still image quality.",
     ["18–55mm lens", "Battery", "Charger"],
     ["photography", "portraits"],
@@ -213,7 +226,7 @@ export const resources: Resource[] = [
     true,
     40,
     300,
-    img.camera,
+    img.cameraTripod,
     "Stable aluminium tripod for cameras and phones, extending to 155 cm.",
     ["Phone clamp", "Carry sleeve"],
     ["tripod", "reel", "stable"],
@@ -247,7 +260,7 @@ export const resources: Resource[] = [
     true,
     110,
     700,
-    img.camera,
+    img.cameraCanon,
     "Two adjustable LED panels with stands and colour temperature control.",
     ["2 stands", "Diffusers", "Power adapters"],
     ["lighting", "video", "studio"],
@@ -508,10 +521,10 @@ export const initialDisputes: Dispute[] = [
     reporterId: "u2",
     reason: "Missing Jumper Wires & Minor Scratches",
     details: "10 jumper wires were missing upon return inspection.",
-    evidenceImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=82",
+    evidenceImage:
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=82",
     claimedDepositDeduction: 150,
     submittedAt: "2026-08-26T18:20:00.000Z",
     status: "Under Review",
   },
 ];
-

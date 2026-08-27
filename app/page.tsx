@@ -32,6 +32,7 @@ import {
   currentUser,
   initialFeeConfig,
   initialNotifications,
+  img,
   ownerFor,
   resources,
 } from "./data";
@@ -87,13 +88,13 @@ const blankFilters: Filters = {
   maxDeposit: 3000,
   minTrust: 0,
 };
-const categories: { name: Category; icon: typeof Camera }[] = [
-  { name: "Cameras", icon: Camera },
-  { name: "Computing", icon: Laptop },
-  { name: "Electronics", icon: Zap },
-  { name: "Books", icon: BookOpen },
-  { name: "Audio", icon: Mic2 },
-  { name: "Tools", icon: Wrench },
+const categories: { name: Category; icon: typeof Camera; image: string }[] = [
+  { name: "Cameras", icon: Camera, image: img.cameraSony },
+  { name: "Computing", icon: Laptop, image: img.laptop },
+  { name: "Electronics", icon: Zap, image: img.electronics },
+  { name: "Books", icon: BookOpen, image: img.book },
+  { name: "Audio", icon: Mic2, image: img.audio },
+  { name: "Tools", icon: Wrench, image: img.tools },
 ];
 
 function CategoryCard({
@@ -101,16 +102,19 @@ function CategoryCard({
   icon: Icon,
   index,
   count,
+  image,
   onClick,
 }: {
   name: Category;
   icon: typeof Camera;
   index: number;
   count: number;
+  image: string;
   onClick: () => void;
 }) {
   return (
     <button className="category-card" onClick={onClick}>
+      <img className="category-card-image" src={image} alt="" loading="lazy" />
       <div className="category-card-top">
         <span>0{index + 1}</span>
         <span className="category-icon">
@@ -960,13 +964,14 @@ export default function Home() {
             </button>
           </div>
           <div className="category-grid">
-            {categories.map(({ name, icon: Icon }, index) => (
+            {categories.map(({ name, icon: Icon, image }, index) => (
               <CategoryCard
                 key={name}
                 name={name}
                 icon={Icon}
                 index={index}
                 count={inventory.filter((r) => r.category === name).length}
+                image={image}
                 onClick={() => {
                   setCategory(name);
                   goExplore();

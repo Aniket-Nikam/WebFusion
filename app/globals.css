@@ -3856,6 +3856,8 @@ textarea::placeholder {
 
 /* Icon system and category composition */
 .category-grid .category-card {
+  position: relative;
+  overflow: hidden;
   min-height: 188px;
   padding: 28px 30px 26px;
   display: flex;
@@ -3863,6 +3865,29 @@ textarea::placeholder {
   justify-content: space-between;
   gap: 24px;
   text-align: left;
+}
+.category-card-image {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 44%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.11;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+.category-card-top,
+.category-card-bottom {
+  position: relative;
+  z-index: 1;
+}
+.category-grid .category-card:hover .category-card-image {
+  opacity: 0.2;
+  transform: scale(1.04);
 }
 .category-card-top,
 .category-card-bottom,
