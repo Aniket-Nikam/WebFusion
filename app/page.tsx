@@ -19,6 +19,7 @@ import {
   PackagePlus,
   Recycle,
   Search,
+  Settings,
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
@@ -27,7 +28,13 @@ import {
   Zap,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { currentUser, initialNotifications, ownerFor, resources } from "./data";
+import {
+  currentUser,
+  initialFeeConfig,
+  initialNotifications,
+  ownerFor,
+  resources,
+} from "./data";
 import {
   formatDistance,
   getMatchScore,
@@ -48,6 +55,7 @@ import {
   NotificationPanel,
   ProfilePage,
   RequestWizard,
+  SettingsModal,
 } from "./workflows";
 import type {
   AppNotification,
@@ -57,6 +65,7 @@ import type {
   Resource,
   CommunityRequest,
   Dispute,
+  PlatformFeeConfig,
 } from "./types";
 
 type View =
@@ -85,6 +94,38 @@ const categories: { name: Category; icon: typeof Camera }[] = [
   { name: "Audio", icon: Mic2 },
   { name: "Tools", icon: Wrench },
 ];
+
+function CategoryCard({
+  name,
+  icon: Icon,
+  index,
+  count,
+  onClick,
+}: {
+  name: Category;
+  icon: typeof Camera;
+  index: number;
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button className="category-card" onClick={onClick}>
+      <div className="category-card-top">
+        <span>0{index + 1}</span>
+        <span className="category-icon">
+          <Icon aria-hidden="true" />
+        </span>
+      </div>
+      <div className="category-card-bottom">
+        <b>{name}</b>
+        <div>
+          <small>{count} nearby</small>
+          <ArrowRight aria-hidden="true" />
+        </div>
+      </div>
+    </button>
+  );
+}
 const seedExchanges: Exchange[] = [
   {
     id: "CC-4821",
@@ -250,11 +291,15 @@ function Header({
   setView,
   onNotifications,
   unread,
+  onOpenSettings,
+  activeRole = "student",
 }: {
   view: View;
   setView: (v: View) => void;
   onNotifications: () => void;
   unread: number;
+  onOpenSettings: () => void;
+  activeRole?: "student" | "admin";
 }) {
   const [mobile, setMobile] = useState(false);
   const links: [View, string][] = [
@@ -263,7 +308,6 @@ function Header({
     ["ai", "AI Finder"],
     ["exchanges", "My Exchanges"],
     ["impact", "Impact"],
-    ["admin", "Admin"],
   ];
   return (
     <header className="app-header">
@@ -296,11 +340,20 @@ function Header({
           <Bell size={18} />
           {unread > 0 && <i />}
         </button>
+        <button
+          className="icon-button"
+          aria-label="Settings"
+          onClick={onOpenSettings}
+        >
+          <Settings size={18} />
+        </button>
         <button className="profile-chip" onClick={() => setView("profile")}>
           <span className="avatar">{currentUser.initials}</span>
           <div>
             <b>{currentUser.name.split(" ")[0]}</b>
-            <small>{currentUser.trust} trust</small>
+            <small>
+              {activeRole === "admin" ? "Admin" : `${currentUser.trust} trust`}
+            </small>
           </div>
           <ChevronDown size={14} />
         </button>
@@ -505,7 +558,11 @@ function DetailPanel({
                   ? "Free to keep"
                   : `₹${resource.charge} / day`}
               </b>
-              <span>+ ₹{resource.deposit} refundable deposit</span>
+              <span>
+                {resource.donation
+                  ? "No deposit or platform fee"
+                  : `+ ₹${Math.max(10, Math.round(resource.charge * 0.05))} platform fee (5%) + ₹${resource.deposit} deposit`}
+              </span>
             </div>
             <button onClick={() => onRequest([resource])}>
               Request to borrow <ArrowRight size={18} />
@@ -528,11 +585,20 @@ export default function Home() {
   const [filters, setFilters] = useState<Filters>(blankFilters);
   const [filterOpen, setFilterOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [listingOpen, setListingOpen] = useState(false);
   const [requestItems, setRequestItems] = useState<Resource[] | null>(null);
   const [communityRequestPrefill, setCommunityRequestPrefill] = useState<
     string | null
   >(null);
+  const [activeRole, setActiveRole] = usePersistentState<"student" | "admin">(
+    "cc:user-role",
+    "student",
+  );
+  const [feeConfig, setFeeConfig] = usePersistentState<PlatformFeeConfig>(
+    "cc:fee-config",
+    initialFeeConfig,
+  );
   const [favorites, setFavorites] = usePersistentState<string[]>(
     "cc:favorites",
     [],
@@ -700,23 +766,55 @@ export default function Home() {
         initial={reduce ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <section className="hero-section">
-          <div className="hero-copy">
-            <div className="eyebrow">
-              <i /> FROM OWNERSHIP TO ACCESS
-            </div>
-            <h1>
+        <section
+          className="hero-section hero-content-z"
+          style={{ position: "relative", overflow: "hidden" }}
+        >
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260319_015952_e1deeb12-8fb7-4071-a42a-60779fc64ab6.mp4"
+            className="hero-video-backdrop"
+          />
+          <div className="hero-gradient-overlay" />
+          <div className="hero-copy hero-content-z">
+            <motion.div
+              className="hero-badge-pill"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Sparkles size={14} />
+              <span>Now with GPT-5 &amp; Groq AI support ✨</span>
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
               Why buy what
               <br />
               someone nearby
               <br />
-              <em>already has?</em>
-            </h1>
-            <p>
-              Borrow, lend, donate and discover trusted resources inside your
-              campus community.
-            </p>
-            <div className="hero-actions">
+              <em className="font-serif-italic">already has?</em>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Automate your temporary resource needs with intelligent campus
+              matching that learns, adapts, and executes—so students can focus
+              on what matters most.
+            </motion.p>
+            <motion.div
+              className="hero-actions"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
               <button onClick={() => goExplore()}>
                 Find a resource <ArrowRight />
               </button>
@@ -726,8 +824,8 @@ export default function Home() {
               >
                 <PackagePlus /> Share something
               </button>
-            </div>
-            <div className="hero-proof">
+            </motion.div>
+            <div className="hero-proof" style={{ marginTop: "24px" }}>
               <div className="avatar-stack">
                 <span>AM</span>
                 <span>MN</span>
@@ -740,7 +838,12 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="finder-panel">
+          <motion.div
+            className="finder-panel hero-content-z"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
             <div className="finder-top">
               <span>
                 <Sparkles /> CAMPUS NEED ASSISTANT
@@ -753,7 +856,9 @@ export default function Home() {
               not what to search.
             </h2>
             <div className="ai-input">
-              <Bot />
+              <span className="assistant-icon">
+                <Bot aria-hidden="true" />
+              </span>
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -793,7 +898,7 @@ export default function Home() {
               </div>
               <strong>94%</strong>
             </div>
-          </div>
+          </motion.div>
         </section>
         <section className="impact-strip">
           <div>
@@ -829,21 +934,17 @@ export default function Home() {
           </div>
           <div className="category-grid">
             {categories.map(({ name, icon: Icon }, index) => (
-              <button
+              <CategoryCard
                 key={name}
+                name={name}
+                icon={Icon}
+                index={index}
+                count={inventory.filter((r) => r.category === name).length}
                 onClick={() => {
                   setCategory(name);
                   goExplore();
                 }}
-              >
-                <span>0{index + 1}</span>
-                <Icon />
-                <b>{name}</b>
-                <small>
-                  {inventory.filter((r) => r.category === name).length} nearby
-                </small>
-                <ArrowRight />
-              </button>
+              />
             ))}
           </div>
         </section>
@@ -978,15 +1079,27 @@ export default function Home() {
             <Search />
             <h2>No campus resource matched that search.</h2>
             <p>Try a broader term or clear the category filter.</p>
-            <button
-              onClick={() => {
-                setQuery("");
-                setCategory("All");
-                setFilters(blankFilters);
-              }}
-            >
-              Clear filters
-            </button>
+            <div className="empty-actions">
+              <button
+                onClick={() => {
+                  setQuery("");
+                  setCategory("All");
+                  setFilters(blankFilters);
+                }}
+              >
+                Clear filters
+              </button>
+              <button
+                className="primary"
+                onClick={() =>
+                  setCommunityRequestPrefill(
+                    query || category !== "All" ? `${query} (${category})` : "",
+                  )
+                }
+              >
+                Post a community request <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
         )}
       </motion.section>
@@ -1017,7 +1130,13 @@ export default function Home() {
         disputes={disputes}
       />
     );
-  else content = <ProfilePage />;
+  else
+    content = (
+      <ProfilePage
+        onOpenSettings={() => setSettingsOpen(true)}
+        activeRole={activeRole}
+      />
+    );
   return (
     <main>
       <Header
@@ -1025,6 +1144,8 @@ export default function Home() {
         setView={setView}
         onNotifications={() => setNotificationOpen(true)}
         unread={notifications.filter((n) => !n.read).length}
+        onOpenSettings={() => setSettingsOpen(true)}
+        activeRole={activeRole}
       />
       <AnimatePresence mode="wait">{content}</AnimatePresence>
       <AnimatePresence>
@@ -1105,6 +1226,16 @@ export default function Home() {
             )
           }
           onClose={() => setNotificationOpen(false)}
+        />
+      )}
+      {settingsOpen && (
+        <SettingsModal
+          onClose={() => setSettingsOpen(false)}
+          activeRole={activeRole}
+          onRoleChange={setActiveRole}
+          onOpenAdmin={() => setView("admin")}
+          feeConfig={feeConfig}
+          onUpdateFeeConfig={setFeeConfig}
         />
       )}
     </main>
