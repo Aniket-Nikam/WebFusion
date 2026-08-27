@@ -124,7 +124,7 @@ function CategoryCard({
       <div className="category-card-bottom">
         <b>{name}</b>
         <div>
-          <small>{count} nearby</small>
+          <small>{count} listings</small>
         </div>
       </div>
     </button>
@@ -865,8 +865,8 @@ export default function Home() {
                 <span>+48</span>
               </div>
               <p>
-                <b>48 exchanges this month</b>
-                <span>between verified campus members</span>
+                <b>Trusted by 48 campus members</b>
+                <span>Sharing access, not buying duplicates</span>
               </p>
             </div>
           </div>
