@@ -355,6 +355,11 @@ export function RequestWizard({
   );
   const [accepted, setAccepted] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paymentMethod, setPaymentMethod] =
+    useState<Exchange["paymentMethod"]>("UPI / QR");
+  const [paymentStatus, setPaymentStatus] = useState<
+    "idle" | "processing" | "success"
+  >("idle");
   const total = items.reduce((s, r) => s + r.charge, 0),
     deposit = items.reduce((s, r) => s + r.deposit, 0),
     platformFee =
@@ -391,11 +396,28 @@ export function RequestWizard({
         "No visible damage": true,
       },
       platformFee,
+      paymentMethod,
+      paymentStatus: "Paid",
+      depositStatus: "Held",
     };
     onComplete(exchange);
     setSuccess(true);
   };
-  const labels = ["Dates", "Pickup", "Conditions", "Charges", "Send"];
+  const simulatePayment = () => {
+    setPaymentStatus("processing");
+    window.setTimeout(() => {
+      setPaymentStatus("success");
+      setStep(5);
+    }, 700);
+  };
+  const labels = [
+    "Dates",
+    "Pickup",
+    "Conditions",
+    "Charges",
+    "Payment",
+    "Send",
+  ];
   return (
     <div className="modal-backdrop">
       <motion.div
@@ -575,6 +597,53 @@ export function RequestWizard({
                 </div>
               )}
               {step === 4 && (
+                <div className="form-step payment-step">
+                  <h3>Choose how to pay</h3>
+                  <p>Demo payment only — no money leaves your account.</p>
+                  <div className="payment-methods">
+                    {(
+                      ["UPI / QR", "Credit card", "Cash at pickup"] as const
+                    ).map((method) => (
+                      <button
+                        key={method}
+                        className={paymentMethod === method ? "selected" : ""}
+                        onClick={() => setPaymentMethod(method)}
+                      >
+                        {method === "UPI / QR" ? (
+                          <QrCode />
+                        ) : method === "Credit card" ? (
+                          <CircleDollarSign />
+                        ) : (
+                          <PackageCheck />
+                        )}
+                        <b>{method}</b>
+                        <span>
+                          {method === "UPI / QR"
+                            ? "Scan a demo QR"
+                            : method === "Credit card"
+                              ? "Use test card details"
+                              : "Settle at handoff"}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="payment-summary">
+                    <span>Borrowing + service fee</span>
+                    <b>₹{total + platformFee}</b>
+                    <span>Refundable deposit</span>
+                    <b>₹{deposit}</b>
+                    <strong>
+                      Total simulated payment · ₹{total + platformFee + deposit}
+                    </strong>
+                  </div>
+                  {paymentStatus === "processing" && (
+                    <p className="payment-status">
+                      Processing secure demo payment…
+                    </p>
+                  )}
+                </div>
+              )}
+              {step === 5 && (
                 <div className="form-step final-review">
                   <PackageCheck />
                   <h3>Ready to send</h3>
@@ -598,10 +667,26 @@ export function RequestWizard({
               </button>
               <button
                 className="primary"
-                disabled={(step === 2 && !accepted) || !items.length}
-                onClick={() => (step === 4 ? send() : setStep((s) => s + 1))}
+                disabled={
+                  (step === 2 && !accepted) ||
+                  !items.length ||
+                  paymentStatus === "processing"
+                }
+                onClick={() =>
+                  step === 4
+                    ? simulatePayment()
+                    : step === 5
+                      ? send()
+                      : setStep((s) => s + 1)
+                }
               >
-                {step === 4 ? "Send request" : "Continue"}
+                {step === 4
+                  ? paymentStatus === "processing"
+                    ? "Processing…"
+                    : `Pay ₹${total + platformFee + deposit}`
+                  : step === 5
+                    ? "Send request"
+                    : "Continue"}
                 <ArrowRight />
               </button>
             </div>

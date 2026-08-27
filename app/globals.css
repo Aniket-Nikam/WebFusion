@@ -4216,6 +4216,72 @@ html[data-theme="dark"] .settings-select-row small {
   color: var(--muted);
   font-size: 13px;
 }
+.payment-methods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+.payment-methods button {
+  display: grid;
+  gap: 7px;
+  text-align: left;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.payment-methods button.selected {
+  border-color: var(--green);
+  background: #e7f0e6;
+  box-shadow: 0 0 0 2px rgba(31, 90, 67, 0.1);
+}
+.payment-methods svg {
+  color: var(--green);
+  width: 22px;
+  height: 22px;
+}
+.payment-methods span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.payment-summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f0f3ed;
+}
+.payment-summary span {
+  color: var(--muted);
+}
+.payment-summary strong {
+  grid-column: 1/-1;
+  border-top: 1px solid var(--line);
+  padding-top: 11px;
+  margin-top: 3px;
+}
+.payment-status {
+  color: var(--green);
+  font-weight: 700;
+}
+.availability-calendar button.selected {
+  border-color: var(--green);
+  background: #dcebdd;
+  box-shadow: 0 0 0 2px rgba(31, 90, 67, 0.12);
+}
+.availability-calendar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+@media (max-width: 650px) {
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+}
 .hero-section:has(.hero-video-backdrop) .hero-proof {
   background: rgba(7, 19, 13, 0.72);
   border-color: rgba(245, 247, 241, 0.34);

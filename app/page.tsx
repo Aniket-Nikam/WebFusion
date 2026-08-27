@@ -409,6 +409,9 @@ function DetailPanel({
   onRequest: (items: Resource[]) => void;
 }) {
   const owner = ownerFor(resource);
+  const [selectedAvailability, setSelectedAvailability] = useState<
+    number | null
+  >(null);
   const dialogRef = useDialogFocus<HTMLElement>(onClose);
   return (
     <motion.div
@@ -533,11 +536,11 @@ function DetailPanel({
             ].map((day, index) => (
               <button
                 key={day}
-                className={
+                className={`${index === 2 || (!resource.availableNow && index === 0) ? "reserved" : "available"}${selectedAvailability === index ? " selected" : ""}`}
+                disabled={
                   index === 2 || (!resource.availableNow && index === 0)
-                    ? "reserved"
-                    : "available"
                 }
+                onClick={() => setSelectedAvailability(index)}
               >
                 <span>{day.split(" ")[0]}</span>
                 <b>{day.split(" ")[1]}</b>

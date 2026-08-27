@@ -77,6 +77,9 @@ export type Exchange = {
   conditionBefore: Record<string, boolean>;
   conditionAfter?: Record<string, boolean>;
   platformFee?: number;
+  paymentMethod?: "UPI / QR" | "Credit card" | "Cash at pickup";
+  paymentStatus?: "Pending" | "Processing" | "Paid" | "Failed";
+  depositStatus?: "Held" | "Released";
 };
 export type CommunityRequest = {
   id: string;
