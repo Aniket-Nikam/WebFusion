@@ -872,7 +872,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <div className="finder-top">
-              <span>
+              <span className="assistant-label">
                 <Sparkles /> CAMPUS NEED ASSISTANT
               </span>
             </div>

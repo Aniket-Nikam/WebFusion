@@ -395,6 +395,17 @@ select:focus-visible {
   gap: 8px;
   color: var(--lime);
 }
+.finder-top .assistant-label {
+  font-family: var(--font-geist-sans);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.075em;
+}
+.finder-top .assistant-label svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.1;
+}
 .finder-top small {
   color: #a9c1b6;
 }
