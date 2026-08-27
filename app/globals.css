@@ -1424,6 +1424,36 @@ select:focus-visible {
   border-radius: 17px;
   padding: 11px 11px 11px 18px;
 }
+.ai-compose-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #cbd8ce;
+  border-radius: 12px;
+  background: #eef4ee;
+  color: var(--green);
+}
+.ai-compose-icon svg {
+  width: 23px;
+  height: 23px;
+  stroke-width: 1.9;
+}
+.ai-compose textarea {
+  align-self: center;
+  padding: 8px 0;
+}
+@media (max-width: 650px) {
+  .ai-compose-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+  .ai-compose {
+    gap: 10px;
+  }
+}
 .ai-compose textarea {
   resize: none;
   border: 0;

@@ -164,7 +164,9 @@ export function AiFinder({
       </div>
       <div className="ai-workbench">
         <div className="ai-compose">
-          <Bot />
+          <span className="ai-compose-icon">
+            <Bot aria-hidden="true" />
+          </span>
           <textarea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
