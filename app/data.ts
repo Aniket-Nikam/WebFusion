@@ -125,7 +125,7 @@ export const img = {
   cameraSony:
     "https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=1200&q=82",
   cameraTripod:
-    "https://images.unsplash.com/photo-1606986628253-7c7f3f6f0e52?auto=format&fit=crop&w=1200&q=82",
+    "https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&w=1200&q=82",
   laptop:
     "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=1200&q=82",
   audio:
