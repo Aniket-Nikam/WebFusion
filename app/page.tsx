@@ -308,7 +308,6 @@ function Header({
     ["ai", "AI Finder"],
     ["exchanges", "My Exchanges"],
     ["impact", "Impact"],
-    ...(activeRole === "admin" ? [["admin", "Admin"] as [View, string]] : []),
   ];
   return (
     <header className="app-header">
@@ -818,15 +817,6 @@ export default function Home() {
           />
           <div className="hero-gradient-overlay" />
           <div className="hero-copy hero-content-z">
-            <motion.div
-              className="hero-badge-pill"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Sparkles size={14} />
-              <span>Campus Assistant · built for student life</span>
-            </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -886,7 +876,6 @@ export default function Home() {
               <span>
                 <Sparkles /> CAMPUS NEED ASSISTANT
               </span>
-              <small>Smart setup · available on campus</small>
             </div>
             <h2>
               Tell us what you need,

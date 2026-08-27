@@ -321,6 +321,13 @@ select:focus-visible {
   align-items: center;
   gap: 15px;
   margin-top: 38px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 14px 10px 8px;
+  border: 1px solid rgba(245, 247, 241, 0.22);
+  border-radius: 14px;
+  background: rgba(10, 26, 18, 0.38);
+  backdrop-filter: blur(8px);
 }
 .avatar-stack {
   display: flex;
@@ -4121,6 +4128,9 @@ html[data-theme="dark"] .settings-select-row small {
 }
 .hero-section:has(.hero-video-backdrop) .hero-proof span {
   color: #c6d2c9;
+}
+.hero-section:has(.hero-video-backdrop) .hero-proof p {
+  color: #f5f7f1;
 }
 .category-card-bottom > div {
   min-width: 0;
