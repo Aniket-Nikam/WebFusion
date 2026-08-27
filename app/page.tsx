@@ -101,14 +101,12 @@ function CategoryCard({
   name,
   icon: Icon,
   index,
-  count,
   image,
   onClick,
 }: {
   name: Category;
   icon: typeof Camera;
   index: number;
-  count: number;
   image: string;
   onClick: () => void;
 }) {
@@ -123,9 +121,6 @@ function CategoryCard({
       </div>
       <div className="category-card-bottom">
         <b>{name}</b>
-        <div>
-          <small>{count} listings</small>
-        </div>
       </div>
     </button>
   );
@@ -858,11 +853,8 @@ export default function Home() {
               </button>
             </motion.div>
             <div className="hero-proof" style={{ marginTop: "24px" }}>
-              <div className="avatar-stack">
-                <span>AM</span>
-                <span>MN</span>
-                <span>KS</span>
-                <span>+48</span>
+              <div className="hero-proof-mark" aria-hidden="true">
+                <ShieldCheck />
               </div>
               <p>
                 <b>Trusted by 48 campus members</b>
@@ -970,7 +962,6 @@ export default function Home() {
                 name={name}
                 icon={Icon}
                 index={index}
-                count={inventory.filter((r) => r.category === name).length}
                 image={image}
                 onClick={() => {
                   setCategory(name);

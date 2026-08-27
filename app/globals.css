@@ -4229,3 +4229,18 @@ html[data-theme="dark"] .settings-select-row small {
 .hero-section:has(.hero-video-backdrop) .avatar-stack span {
   border-color: #f5f7f1;
 }
+.hero-proof-mark {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--lime);
+}
+.hero-proof-mark svg {
+  width: 23px;
+  height: 23px;
+  stroke-width: 2;
+}
