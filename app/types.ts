@@ -30,6 +30,7 @@ export type User = {
   responseMinutes: number;
   memberSince: string;
   badges: string[];
+  suspended?: boolean;
 };
 export type Resource = {
   id: string;
@@ -59,7 +60,8 @@ export type ExchangeStage =
   | "In use"
   | "Return due"
   | "Returned"
-  | "Deposit settled";
+  | "Deposit settled"
+  | "Disputed";
 export type Exchange = {
   id: string;
   resourceIds: string[];
@@ -89,10 +91,18 @@ export type CommunityRequest = {
 export type Dispute = {
   id: string;
   exchangeId: string;
+  reporterId: string;
   reason: string;
   details: string;
+  evidenceImage?: string;
+  claimedDepositDeduction: number;
   submittedAt: string;
-  status: "Open" | "Resolved";
+  status: "Open" | "Resolved" | "Under Review";
+};
+export type PlatformFeeConfig = {
+  percentRate: number;
+  minFee: number;
+  enabled: boolean;
 };
 export type AppNotification = {
   id: string;
@@ -111,3 +121,4 @@ export type NeedAnalysis = {
   keywords: string[];
   explanation: string;
 };
+

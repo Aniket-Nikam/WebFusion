@@ -1,4 +1,4 @@
-import type { NeedAnalysis, Resource, User } from "./types";
+import type { NeedAnalysis, PlatformFeeConfig, Resource, User } from "./types";
 const conditionScore = {
   "Like new": 100,
   Excellent: 92,
@@ -101,3 +101,32 @@ export function analyseNeed(query: string): NeedAnalysis {
 export const formatDistance = (m: number) =>
   m < 1000 ? `${m} m` : `${(m / 1000).toFixed(1)} km`;
 export const walkingMinutes = (m: number) => Math.max(1, Math.round(m / 80));
+
+export const defaultFeeConfig: PlatformFeeConfig = {
+  percentRate: 5,
+  minFee: 10,
+  enabled: true,
+};
+
+export function calculatePlatformFee(
+  dailyCharge: number,
+  days: number = 1,
+  config: PlatformFeeConfig = defaultFeeConfig,
+): number {
+  if (!config.enabled || dailyCharge <= 0) return 0;
+  const rawFee = Math.round((dailyCharge * days * config.percentRate) / 100);
+  return Math.max(rawFee, config.minFee);
+}
+
+export function calculateTotalTransaction(
+  dailyCharge: number,
+  deposit: number,
+  days: number = 1,
+  config: PlatformFeeConfig = defaultFeeConfig,
+) {
+  const fee = calculatePlatformFee(dailyCharge, days, config);
+  const rental = dailyCharge * days;
+  const total = rental + fee + deposit;
+  return { rental, fee, deposit, total };
+}
+

@@ -20,9 +20,12 @@ import {
   QrCode,
   Recycle,
   RotateCcw,
+  Shield,
   ShieldCheck,
+  Settings,
   Sparkles,
   Trophy,
+  UserCheck,
   Users,
   X,
   Zap,
@@ -39,6 +42,7 @@ import type {
   CommunityRequest,
   Dispute,
   NeedAnalysis,
+  PlatformFeeConfig,
   Resource,
 } from "./types";
 
@@ -948,8 +952,10 @@ function ExchangeCard({
                       onSubmitDispute({
                         id: `DSP-${Date.now()}`,
                         exchangeId: exchange.id,
+                        reporterId: currentUser.id,
                         reason: disputeReason,
                         details: disputeDetails,
+                        claimedDepositDeduction: 100,
                         submittedAt: new Date().toISOString(),
                         status: "Open",
                       });
@@ -1098,7 +1104,13 @@ export function ImpactPage({ exchanges }: { exchanges: Exchange[] }) {
   );
 }
 
-export function ProfilePage() {
+export function ProfilePage({
+  onOpenSettings,
+  activeRole = "student",
+}: {
+  onOpenSettings?: () => void;
+  activeRole?: "student" | "admin";
+}) {
   const factors = [
     ["College identity verified", 20, 20],
     ["4.8 member rating", 20, 20],
@@ -1114,7 +1126,10 @@ export function ProfilePage() {
           <div className="avatar huge">{currentUser.initials}</div>
           <div>
             <span>
-              <BadgeCheck /> VERIFIED CAMPUS MEMBER
+              <BadgeCheck />{" "}
+              {activeRole === "admin"
+                ? "CAMPUS ADMINISTRATOR"
+                : "VERIFIED CAMPUS MEMBER"}
             </span>
             <h1>{currentUser.name}</h1>
             <p>
@@ -1123,6 +1138,16 @@ export function ProfilePage() {
               Member since {currentUser.memberSince}
             </p>
           </div>
+          {onOpenSettings && (
+            <button
+              className="profile-settings-btn"
+              onClick={onOpenSettings}
+              aria-label="Open Settings"
+            >
+              <Settings size={18} />
+              <span>Settings</span>
+            </button>
+          )}
         </div>
         <div className="profile-stats">
           <div>
@@ -1209,6 +1234,224 @@ export function ProfilePage() {
         </article>
       </div>
     </section>
+  );
+}
+
+export function SettingsModal({
+  onClose,
+  activeRole,
+  onRoleChange,
+  onOpenAdmin,
+  feeConfig,
+  onUpdateFeeConfig,
+}: {
+  onClose: () => void;
+  activeRole: "student" | "admin";
+  onRoleChange: (role: "student" | "admin") => void;
+  onOpenAdmin: () => void;
+  feeConfig: PlatformFeeConfig;
+  onUpdateFeeConfig: (config: PlatformFeeConfig) => void;
+}) {
+  const dialogRef = useDialogFocus<HTMLElement>(onClose);
+  const [notifyExchanges, setNotifyExchanges] = useState(true);
+  const [notifyReturns, setNotifyReturns] = useState(true);
+  const [notifyCommunity, setNotifyCommunity] = useState(true);
+
+  return (
+    <div className="notification-backdrop" onClick={onClose}>
+      <motion.aside
+        ref={dialogRef}
+        className="filter-drawer settings-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
+        tabIndex={-1}
+        initial={{ x: "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: "100%" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header>
+          <div>
+            <span>PREFERENCES &amp; CONTROLS</span>
+            <h2 id="settings-title">Settings</h2>
+          </div>
+          <button onClick={onClose} aria-label="Close settings">
+            <X />
+          </button>
+        </header>
+
+        <div className="settings-body">
+          <section className="settings-section">
+            <span className="field-group-label">ACTIVE PERSONA &amp; ROLE</span>
+            <div className="role-switch-grid">
+              <button
+                className={`role-card ${activeRole === "student" ? "active" : ""}`}
+                onClick={() => onRoleChange("student")}
+              >
+                <div className="role-icon">
+                  <UserCheck size={20} />
+                </div>
+                <div>
+                  <b>Student Mode</b>
+                  <small>Ananya Rao · Verified Member</small>
+                </div>
+                {activeRole === "student" && (
+                  <CheckCircle2 className="role-check" size={18} />
+                )}
+              </button>
+
+              <button
+                className={`role-card ${activeRole === "admin" ? "active" : ""}`}
+                onClick={() => onRoleChange("admin")}
+              >
+                <div className="role-icon admin">
+                  <Shield size={20} />
+                </div>
+                <div>
+                  <b>Admin Mode</b>
+                  <small>Campus Operations &amp; Oversight</small>
+                </div>
+                {activeRole === "admin" && (
+                  <CheckCircle2 className="role-check" size={18} />
+                )}
+              </button>
+            </div>
+
+            {activeRole === "admin" && (
+              <div className="admin-launch-box">
+                <div>
+                  <ShieldCheck size={20} />
+                  <div>
+                    <b>Admin Console Unlocked</b>
+                    <span>
+                      Manage stats, approvals, disputes &amp; platform fees
+                    </span>
+                  </div>
+                </div>
+                <button
+                  className="primary-wide"
+                  onClick={() => {
+                    onClose();
+                    onOpenAdmin();
+                  }}
+                >
+                  Launch Admin Console <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
+          </section>
+
+          {activeRole === "admin" && (
+            <section className="settings-section">
+              <span className="field-group-label">
+                PLATFORM FEE CONFIGURATION
+              </span>
+              <label className="switch-row">
+                <span>
+                  <b>Enable Platform Service Fee</b>
+                  <small>
+                    Apply percentage service fee to borrowing exchanges
+                  </small>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={feeConfig.enabled}
+                  onChange={(e) =>
+                    onUpdateFeeConfig({
+                      ...feeConfig,
+                      enabled: e.target.checked,
+                    })
+                  }
+                />
+              </label>
+
+              {feeConfig.enabled && (
+                <>
+                  <label className="slider-label">
+                    PLATFORM FEE RATE <b>{feeConfig.percentRate}%</b>
+                    <input
+                      type="range"
+                      min="1"
+                      max="15"
+                      step="1"
+                      value={feeConfig.percentRate}
+                      onChange={(e) =>
+                        onUpdateFeeConfig({
+                          ...feeConfig,
+                          percentRate: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="slider-label">
+                    MINIMUM FEE PER EXCHANGE <b>₹{feeConfig.minFee}</b>
+                    <input
+                      type="range"
+                      min="5"
+                      max="50"
+                      step="5"
+                      value={feeConfig.minFee}
+                      onChange={(e) =>
+                        onUpdateFeeConfig({
+                          ...feeConfig,
+                          minFee: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </label>
+                </>
+              )}
+            </section>
+          )}
+
+          <section className="settings-section">
+            <span className="field-group-label">NOTIFICATION PREFERENCES</span>
+            <label className="switch-row">
+              <span>
+                <b>Exchange Status Updates</b>
+                <small>Alert when requests are approved or scheduled</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={notifyExchanges}
+                onChange={(e) => setNotifyExchanges(e.target.checked)}
+              />
+            </label>
+            <label className="switch-row">
+              <span>
+                <b>Return Due Reminders</b>
+                <small>Alert 24 hours before borrowing period expires</small>
+              </span>
+              <input
+                type="checkbox"
+                checked={notifyReturns}
+                onChange={(e) => setNotifyReturns(e.target.checked)}
+              />
+            </label>
+            <label className="switch-row">
+              <span>
+                <b>Community Request Alerts</b>
+                <small>
+                  Alert when students request items in your categories
+                </small>
+              </span>
+              <input
+                type="checkbox"
+                checked={notifyCommunity}
+                onChange={(e) => setNotifyCommunity(e.target.checked)}
+              />
+            </label>
+          </section>
+        </div>
+
+        <footer>
+          <button className="primary-wide" onClick={onClose}>
+            Save Preferences <Check size={18} />
+          </button>
+        </footer>
+      </motion.aside>
+    </div>
   );
 }
 

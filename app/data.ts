@@ -1,4 +1,4 @@
-import type { AppNotification, Resource, User } from "./types";
+import type { AppNotification, CommunityRequest, Dispute, PlatformFeeConfig, Resource, User } from "./types";
 
 export const users: User[] = [
   {
@@ -471,3 +471,47 @@ export const initialNotifications: AppNotification[] = [
 export const currentUser = users.find((u) => u.id === "me")!;
 export const ownerFor = (resource: Resource) =>
   users.find((u) => u.id === resource.ownerId)!;
+
+export const initialFeeConfig: PlatformFeeConfig = {
+  percentRate: 5,
+  minFee: 10,
+  enabled: true,
+};
+
+export const initialCommunityRequests: CommunityRequest[] = [
+  {
+    id: "req-101",
+    title: "DJI Osmo Pocket Gimbal",
+    category: "Cameras",
+    details: "Needed for short documentary interview shoot at Innovation Lab.",
+    neededBy: "2026-08-30",
+    requesterId: "u3",
+    status: "Open",
+    createdAt: "2026-08-26T14:30:00.000Z",
+  },
+  {
+    id: "req-102",
+    title: "TI-84 Plus CE Graphic Calculator",
+    category: "Study",
+    details: "Needed for Advanced Statistics mid-semester exam tomorrow.",
+    neededBy: "2026-08-28",
+    requesterId: "u4",
+    status: "Open",
+    createdAt: "2026-08-27T09:15:00.000Z",
+  },
+];
+
+export const initialDisputes: Dispute[] = [
+  {
+    id: "dsp-401",
+    exchangeId: "CC-4821",
+    reporterId: "u2",
+    reason: "Missing Jumper Wires & Minor Scratches",
+    details: "10 jumper wires were missing upon return inspection.",
+    evidenceImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=82",
+    claimedDepositDeduction: 150,
+    submittedAt: "2026-08-26T18:20:00.000Z",
+    status: "Under Review",
+  },
+];
+
