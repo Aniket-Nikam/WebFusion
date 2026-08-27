@@ -1156,13 +1156,7 @@ export default function Home() {
         disputes={disputes}
       />
     );
-  else
-    content = (
-      <ProfilePage
-        onOpenSettings={() => setSettingsOpen(true)}
-        activeRole={activeRole}
-      />
-    );
+  else content = <ProfilePage activeRole={activeRole} />;
   return (
     <main>
       <Header

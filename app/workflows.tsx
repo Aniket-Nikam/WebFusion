@@ -22,7 +22,6 @@ import {
   RotateCcw,
   Shield,
   ShieldCheck,
-  Settings,
   Sparkles,
   Trophy,
   UserCheck,
@@ -1271,10 +1270,8 @@ export function ImpactPage({ exchanges }: { exchanges: Exchange[] }) {
 }
 
 export function ProfilePage({
-  onOpenSettings,
   activeRole = "student",
 }: {
-  onOpenSettings?: () => void;
   activeRole?: "student" | "admin";
 }) {
   const factors = [
@@ -1291,29 +1288,19 @@ export function ProfilePage({
         <div className="profile-identity">
           <div className="avatar huge">{currentUser.initials}</div>
           <div>
-            <span>
-              <BadgeCheck />{" "}
-              {activeRole === "admin"
-                ? "CAMPUS ADMINISTRATOR"
-                : "VERIFIED CAMPUS MEMBER"}
-            </span>
-            <h1>{currentUser.name}</h1>
+            <div className="profile-name-row">
+              <h1>{currentUser.name}</h1>
+              <span className="profile-badge">
+                <BadgeCheck />
+                {activeRole === "admin" ? "ADMIN" : "VERIFIED"}
+              </span>
+            </div>
             <p>
               {currentUser.department} · {currentUser.year}
               <br />
               Member since {currentUser.memberSince}
             </p>
           </div>
-          {onOpenSettings && (
-            <button
-              className="profile-settings-btn"
-              onClick={onOpenSettings}
-              aria-label="Open Settings"
-            >
-              <Settings size={18} />
-              <span>Settings</span>
-            </button>
-          )}
         </div>
         <div className="profile-stats">
           <div>
